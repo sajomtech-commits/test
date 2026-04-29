@@ -1,0 +1,53 @@
+
+<style>
+  .preview-wrap { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.5rem; }
+  .browser-bar { background: var(--color-background-primary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); padding: 8px 12px; display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; }
+  .dots { display: flex; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border-secondary); }
+  .url-bar { flex: 1; background: var(--color-background-secondary); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-mono); }
+  .page-preview { background: var(--color-background-primary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); padding: 2rem; min-height: 220px; }
+  .site-title { font-size: 22px; font-weight: 500; margin: 0 0 4px; color: var(--color-text-primary); }
+  .site-subtitle { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 1.5rem; }
+  .page-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .page-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); cursor: pointer; transition: border-color 0.15s; }
+  .page-item:hover { border-color: var(--color-border-primary); }
+  .page-icon { font-size: 14px; width: 28px; height: 28px; border-radius: 6px; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .page-name { font-size: 14px; font-weight: 500; color: var(--color-text-info); }
+  .page-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 1px; }
+  .arrow { margin-left: auto; font-size: 14px; color: var(--color-text-tertiary); }
+  .footer { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1rem; text-align: right; font-family: var(--font-mono); }
+</style>
+
+<div class="preview-wrap">
+  <div class="browser-bar">
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="url-bar">sajomtech-commits.github.io/test/</div>
+  </div>
+  <div class="page-preview">
+    <p class="site-title">Mes pages</p>
+    <p class="site-subtitle">sajomtech-commits / test</p>
+    <ul class="page-list" id="list">
+      <li class="page-item">
+        <div class="page-icon" style="color: var(--color-text-info);">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="7" x2="8" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="page-name">page1.html</div>
+          <div class="page-desc">Page 1</div>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+      <li class="page-item">
+        <div class="page-icon" style="color: var(--color-text-info);">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="3.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="7" x2="8" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="page-name">page2.html</div>
+          <div class="page-desc">Page 2</div>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+    </ul>
+    <div class="footer">github pages · sajomtech-commits/test</div>
+  </div>
+</div>
