@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulateur de prêt immobilier — CCF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F2EDE3;
+      --surface: #FBF7F0;
+      --surface-2: #F7F1E6;
+      --ink: #1A1815;
+      --ink-soft: #3A342C;
+      --muted: #847A6C;
+      --line: #E3D9C7;
+      --line-soft: #ECE3D2;
+      --accent: #B14E2B;
+      --accent-deep: #8A3A1E;
+      --good: #2C4A3E;
+      --good-soft: #DEE7DF;
+      --warn: #BC8B27;
+      --warn-soft: #F5E9C4;
+      --danger: #962525;
+      --danger-soft: #EFD2D2;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 1px 2px rgba(26,24,21,0.04), 0 8px 24px rgba(26,24,21,0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-feature-settings: 'ss01', 'ss02';
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(177,78,43,0.08), transparent 60%),
+        radial-gradient(ellipse 70% 40% at 90% 100%, rgba(44,74,62,0.06), transparent 60%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 28px 80px;
+    }
+
+    /* HEADER */
+    header {
+      margin-bottom: 40px;
+    }
+
+    .kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 12px;
+      font-weight: 500;
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-weight: 500;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 14px;
+      font-variation-settings: 'opsz' 144;
+    }
+
+    h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--accent);
+      font-variation-settings: 'opsz' 144;
+    }
+
+    .subtitle {
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0;
+    }
+
+    /* PRESET BAR */
+    .presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 28px 0 0;
+    }
+
+    .preset-btn {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-btn:hover {
+      background: var(--accent);
+      color: var(--surface);
+      border-color: var(--accent);
+    }
+
+    .preset-btn.preset-reset {
+      margin-left: auto;
+      color: var(--muted);
+    }
+
+    /* LAYOUT */
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 28px;
+      margin-top: 36px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 32px 18px 60px; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      font-family: 'Fraunces', serif;
+      font-weight: 500;
+      font-size: 1.45rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 4px;
+    }
+
+    .panel-sub {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin: 0 0 24px;
+    }
+
+    /* SECTIONS in inputs panel */
+    .section {
+      padding: 18px 0;
+      border-top: 1px solid var(--line-soft);
+    }
+    .section:first-of-type { border-top: 0; padding-top: 0; }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .subsection-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 500;
+      font-style: italic;
+      font-size: 0.92rem;
+      color: var(--accent-deep);
+      margin: 14px 0 6px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line-soft);
+    }
+    .subsection-title:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .summary {
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-top: 18px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+    }
+    .summary-row span:last-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .summary-row.emphasis {
+      padding-top: 9px;
+      margin-top: 4px;
+      border-top: 1px solid var(--line);
+      font-weight: 600;
+    }
+    .summary-row.emphasis span:first-child { color: var(--ink); }
+    .summary-row.emphasis span:last-child {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      color: var(--accent-deep);
+    }
+    .summary-row.info {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .summary-row.info span:last-child {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* INPUT ROW */
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 8px 0;
+    }
+
+    .row label {
+      font-size: 0.94rem;
+      color: var(--ink-soft);
+      flex: 1;
+    }
+
+    .row .hint {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="number"], input[type="text"], select {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 500;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      width: 140px;
+      text-align: right;
+      color: var(--ink);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    select {
+      text-align: left;
+      cursor: pointer;
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+
+    .unit {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-left: 8px;
+      min-width: 18px;
+    }
+
+    /* RESULTS PANEL */
+    .results-panel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-metric {
+      padding: 8px 0 24px;
+      border-bottom: 1px solid var(--line-soft);
+      margin-bottom: 24px;
+    }
+
+    .hero-metric .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .hero-metric .value {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.4rem, 6vw, 3.5rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      font-variation-settings: 'opsz' 144;
+    }
+
+    .hero-metric .value .small {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.42em;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0;
+      margin-left: 4px;
+    }
+
+    /* ENDETTEMENT GAUGE */
+    .endettement-block {
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      margin-bottom: 22px;
+      transition: background 0.3s;
+    }
+    .endettement-block.good { background: var(--good-soft); }
+    .endettement-block.warn { background: var(--warn-soft); }
+    .endettement-block.danger { background: var(--danger-soft); }
+
+    .endettement-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .endettement-label {
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    .endettement-value {
+      font-family: 'Fraunces', serif;
+      font-size: 1.7rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .good .endettement-value { color: var(--good); }
+    .warn .endettement-value { color: var(--warn); }
+    .danger .endettement-value { color: var(--danger); }
+
+    .gauge {
+      position: relative;
+      height: 6px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .gauge-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      background: var(--good);
+      border-radius: 999px;
+      transition: width 0.3s ease, background 0.3s;
+    }
+    .warn .gauge-fill { background: var(--warn); }
+    .danger .gauge-fill { background: var(--danger); }
+
+    .gauge-marker {
+      position: absolute;
+      top: -3px; bottom: -3px;
+      width: 2px;
+      background: var(--ink);
+      opacity: 0.4;
+    }
+
+    .endettement-note {
+      font-size: 0.76rem;
+      color: var(--ink-soft);
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    /* RESULTS TABLE */
+    .res-section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 22px 0 8px;
+    }
+
+    .res-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .res-row:last-child { border-bottom: 0; }
+    .res-row.emphasis {
+      padding: 14px 0;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .res-row .k {
+      font-size: 0.92rem;
+      color: var(--ink-soft);
+    }
+    .res-row.emphasis .k {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .res-row .v {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.96rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .res-row.emphasis .v {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    /* FOOTER NOTE */
+    .footer-note {
+      margin-top: 40px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .footer-note strong {
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    /* Tooltip */
+    .info {
+      display: inline-flex;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--line);
+      color: var(--muted);
+      font-size: 0.65rem;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      margin-left: 4px;
+      font-style: italic;
+      font-family: serif;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <p class="kicker">Simulateur personnel · Règles CCF</p>
+      <h1>Combien je peux <em>vraiment</em> emprunter ?</h1>
+      <p class="subtitle">Calcul calé sur les règles d'octroi du portail CCF : revenu retenu à 77 % du brut, plafond HCSF à 35 %, garantie Crédit Logement.</p>
+
+      <div class="presets">
+        <button class="preset-btn preset-reset" data-preset="reset">↻ Réinitialiser</button>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- INPUTS -->
+      <section class="panel">
+        <h2>Paramètres</h2>
+        <p class="panel-sub">Modifie les valeurs, les calculs se mettent à jour en direct.</p>
+
+        <div class="section">
+          <div class="section-label">Revenus annuels bruts</div>
+
+          <div class="subsection-title">Composantes fixes</div>
+          <div class="row">
+            <label>Salaire de base brut <span class="hint">annuel sans primes</span></label>
+            <div class="input-wrap"><input type="number" id="salaireBase" value="42000" step="500"><span class="unit">€/an</span></div>
+          </div>
+          <div class="row">
+            <label>13<sup>e</sup> mois (brut)</label>
+            <div class="input-wrap"><input type="number" id="treizieme" value="3500" step="100"><span class="unit">€/an</span></div>
+          </div>
+          <div class="row">
+            <label>Prime de rentrée scolaire</label>
+            <div class="input-wrap"><input type="number" id="primeRentree" value="900" step="50"><span class="unit">€/an</span></div>
+          </div>
+          <div class="row">
+            <label>RTT payées <span class="hint">saisi en NET (conv. auto × 1,30)</span></label>
+            <div class="input-wrap"><input type="number" id="rttNet" value="1800" step="50"><span class="unit">€/an</span></div>
+          </div>
+          <div class="row">
+            <label>Heures sup. exonérées <span class="hint">cumul annuel</span></label>
+            <div class="input-wrap"><input type="number" id="hsAnnuel" value="700" step="50"><span class="unit">€/an</span></div>
+          </div>
+
+          <div class="subsection-title">Composante variable</div>
+          <div class="row">
+            <label>Bonus annuel (brut) <span class="hint">retenu si &lt; 20 % du fixe</span></label>
+            <div class="input-wrap"><input type="number" id="bonus" value="3200" step="100"><span class="unit">€/an</span></div>
+          </div>
+
+          <div class="subsection-title">Hors retenu CCF · trésorerie</div>
+          <div class="row">
+            <label>Intéressement <span class="hint">net, versé via PEE</span></label>
+            <div class="input-wrap"><input type="number" id="interessement" value="1800" step="50"><span class="unit">€/an</span></div>
+          </div>
+          <div class="row">
+            <label>Participation <span class="hint">net, versé via PEE</span></label>
+            <div class="input-wrap"><input type="number" id="participation" value="0" step="50"><span class="unit">€/an</span></div>
+          </div>
+
+          <div class="summary">
+            <div class="summary-row"><span>Fixe brut annuel</span><span id="sumFixe">—</span></div>
+            <div class="summary-row"><span>Variable / Fixe</span><span id="sumRatio">—</span></div>
+            <div class="summary-row emphasis"><span>Mensuel retenu CCF</span><span id="sumMensuel">—</span></div>
+            <div class="summary-row info"><span>+ Trésorerie annuelle (hors retenu)</span><span id="sumTresorerie">—</span></div>
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <label>Coefficient CCF <span class="hint">brut → net retenu</span></label>
+            <div class="input-wrap"><input type="number" id="coefCCF" value="0.77" step="0.01"><span class="unit"></span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Charges actuelles</div>
+          <div class="row">
+            <label>Mensualités crédits en cours <span class="hint">après vente appart : 0</span></label>
+            <div class="input-wrap"><input type="number" id="charges" value="0" step="50"><span class="unit">€</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Bien immobilier</div>
+          <div class="row">
+            <label>Prix du bien <span class="hint">FAI (frais d'agence inclus)</span></label>
+            <div class="input-wrap"><input type="number" id="prix" value="300000" step="1000"><span class="unit">€</span></div>
+          </div>
+          <div class="row">
+            <label>Type de bien</label>
+            <div class="input-wrap"><select id="typeBien">
+              <option value="7.5" selected>Ancien</option>
+              <option value="2.5">Neuf / VEFA</option>
+            </select></div>
+          </div>
+          <div class="row">
+            <label>Frais de notaire</label>
+            <div class="input-wrap"><input type="number" id="fraisNotairePct" value="7.5" step="0.1"><span class="unit">%</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Financement</div>
+          <div class="row">
+            <label>Apport</label>
+            <div class="input-wrap"><input type="number" id="apport" value="130000" step="1000"><span class="unit">€</span></div>
+          </div>
+          <div class="row">
+            <label>Taux nominal (TAEG hors assu)</label>
+            <div class="input-wrap"><input type="number" id="taux" value="3.17" step="0.05"><span class="unit">%</span></div>
+          </div>
+          <div class="row">
+            <label>Durée</label>
+            <div class="input-wrap"><input type="number" id="duree" value="25" step="1" max="25"><span class="unit">ans</span></div>
+          </div>
+          <div class="row">
+            <label>Taux assurance emprunteur</label>
+            <div class="input-wrap"><input type="number" id="tauxAssu" value="0.35" step="0.05"><span class="unit">%</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Frais bancaires</div>
+          <div class="row">
+            <label>Frais Crédit Logement <span class="hint">% du montant emprunté</span></label>
+            <div class="input-wrap"><input type="number" id="fraisCLPct" value="1" step="0.1"><span class="unit">%</span></div>
+          </div>
+          <div class="row">
+            <label>Frais de dossier CCF</label>
+            <div class="input-wrap"><input type="number" id="fraisDossier" value="750" step="50"><span class="unit">€</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESULTS -->
+      <section class="panel results-panel">
+
+        <div class="hero-metric">
+          <div class="label">Mensualité totale (crédit + assurance)</div>
+          <div class="value"><span id="mensTotale">—</span><span class="small">€ / mois</span></div>
+        </div>
+
+        <div id="endettementBlock" class="endettement-block">
+          <div class="endettement-top">
+            <div class="endettement-label">Taux d'endettement</div>
+            <div class="endettement-value"><span id="endettementVal">—</span><span style="font-size:0.7em">%</span></div>
+          </div>
+          <div class="gauge">
+            <div class="gauge-fill" id="gaugeFill" style="width:0%"></div>
+            <div class="gauge-marker" style="left:35%"></div>
+          </div>
+          <p class="endettement-note" id="endettementNote">—</p>
+        </div>
+
+        <div class="res-section-label">Capacité &amp; revenus retenus</div>
+        <div class="res-row">
+          <span class="k">Revenu mensuel retenu (× 0,77)</span>
+          <span class="v"><span id="revRetenu">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Mensualité max HCSF (35 %)</span>
+          <span class="v"><span id="mensMax">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Capacité d'emprunt max</span>
+          <span class="v"><span id="capaciteMax">—</span> €</span>
+        </div>
+
+        <div class="res-section-label">Plan de financement</div>
+        <div class="res-row">
+          <span class="k">Prix du bien</span>
+          <span class="v"><span id="resPrix">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Frais de notaire</span>
+          <span class="v"><span id="resFraisNotaire">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Frais Crédit Logement</span>
+          <span class="v"><span id="resFraisCL">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Frais de dossier</span>
+          <span class="v"><span id="resFraisDossier">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Coût total opération</span>
+          <span class="v"><span id="resCoutTotal">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">– Apport</span>
+          <span class="v">– <span id="resApport">—</span> €</span>
+        </div>
+        <div class="res-row emphasis">
+          <span class="k">Montant emprunté</span>
+          <span class="v"><span id="resEmprunte">—</span> €</span>
+        </div>
+
+        <div class="res-section-label">Détail des mensualités</div>
+        <div class="res-row">
+          <span class="k">Mensualité crédit</span>
+          <span class="v"><span id="resMensCredit">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Mensualité assurance</span>
+          <span class="v"><span id="resMensAssu">—</span> €</span>
+        </div>
+
+        <div class="res-section-label">Coût total du crédit</div>
+        <div class="res-row">
+          <span class="k">Intérêts cumulés</span>
+          <span class="v"><span id="resInterets">—</span> €</span>
+        </div>
+        <div class="res-row">
+          <span class="k">Assurance cumulée</span>
+          <span class="v"><span id="resAssuTotal">—</span> €</span>
+        </div>
+        <div class="res-row emphasis">
+          <span class="k">Coût total crédit</span>
+          <span class="v"><span id="resCoutCredit">—</span> €</span>
+        </div>
+
+      </section>
+    </div>
+
+    <div class="footer-note">
+      <strong>Notes méthodologiques.</strong> Calcul du revenu retenu selon les règles d'octroi du portail CCF (revenus salariés CDI : brut mensuel × 0,77 ; variable retenu uniquement si récurrent et &lt; 20 % du fixe). Plafond HCSF à 35 % du revenu net pour la mensualité totale (crédit + assurance). Frais de notaire estimés à 7,5 % en ancien et 2,5 % en neuf — varient selon le département. Frais Crédit Logement basés sur un % indicatif (barème réel : forfait + commission caution). L'intéressement (versé via PEE) n'est pas inclus dans le revenu retenu.
+    </div>
+  </div>
+
+  <script>
+    const fmt = n => Math.round(n).toLocaleString('fr-FR');
+    const fmt2 = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+    const inputs = ['salaireBase','treizieme','primeRentree','rttNet','hsAnnuel','bonus','interessement','participation','coefCCF','charges','prix','typeBien','fraisNotairePct','apport','taux','duree','tauxAssu','fraisCLPct','fraisDossier'];
+
+    // Sync type de bien -> frais notaire %
+    document.getElementById('typeBien').addEventListener('change', e => {
+      document.getElementById('fraisNotairePct').value = e.target.value;
+      compute();
+    });
+
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', compute);
+    });
+
+    function mensualite(K, tauxAnn, nMois) {
+      if (K <= 0 || nMois <= 0) return 0;
+      const t = tauxAnn / 100 / 12;
+      if (t === 0) return K / nMois;
+      return K * t / (1 - Math.pow(1 + t, -nMois));
+    }
+
+    function compute() {
+      // REVENUS — annuel brut
+      const salaireBase = parseFloat(document.getElementById('salaireBase').value) || 0;
+      const treizieme = parseFloat(document.getElementById('treizieme').value) || 0;
+      const primeRentree = parseFloat(document.getElementById('primeRentree').value) || 0;
+      const rttNet = parseFloat(document.getElementById('rttNet').value) || 0;
+      const hsAnnuel = parseFloat(document.getElementById('hsAnnuel').value) || 0;
+      const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+      const interessement = parseFloat(document.getElementById('interessement').value) || 0;
+      const participation = parseFloat(document.getElementById('participation').value) || 0;
+      const coef = parseFloat(document.getElementById('coefCCF').value) || 0.77;
+
+      // RTT versées en NET, conversion brut équivalent salaire (×1,30)
+      const rttBrut = rttNet * 1.30;
+
+      // Fixe brut annuel total
+      const fixeBrutAnnuel = salaireBase + treizieme + primeRentree + rttBrut + hsAnnuel;
+      const variableBrutAnnuel = bonus;
+
+      // Ratio variable / fixe — règle CCF : retenu si < 20% du fixe
+      const ratio = fixeBrutAnnuel > 0 ? variableBrutAnnuel / fixeBrutAnnuel : 0;
+      const variableRetenu = ratio < 0.20 ? variableBrutAnnuel : variableBrutAnnuel; // simplification
+
+      // Mensuel retenu CCF
+      const revFixeMensuel = (fixeBrutAnnuel / 12) * coef;
+      const revVarMensuel = (variableRetenu / 12) * coef;
+      const revRetenu = revFixeMensuel + revVarMensuel;
+
+      // Trésorerie hors retenu
+      const tresorerie = interessement + participation;
+
+      // Update summary block
+      document.getElementById('sumFixe').textContent = fmt(fixeBrutAnnuel) + ' €';
+      document.getElementById('sumRatio').textContent = (ratio * 100).toFixed(1).replace('.', ',') + ' %  ' + (ratio < 0.20 ? '✓ retenu' : '⚠ moy. 3 ans');
+      document.getElementById('sumMensuel').textContent = fmt(revRetenu) + ' €/mois';
+      document.getElementById('sumTresorerie').textContent = fmt(tresorerie) + ' € / an';
+
+      // CHARGES & BIEN
+      const charges = parseFloat(document.getElementById('charges').value) || 0;
+      const prix = parseFloat(document.getElementById('prix').value) || 0;
+      const fraisNotPct = parseFloat(document.getElementById('fraisNotairePct').value) || 0;
+      const apport = parseFloat(document.getElementById('apport').value) || 0;
+      const taux = parseFloat(document.getElementById('taux').value) || 0;
+      const duree = parseFloat(document.getElementById('duree').value) || 0;
+      const tauxAssu = parseFloat(document.getElementById('tauxAssu').value) || 0;
+      const fraisCLPct = parseFloat(document.getElementById('fraisCLPct').value) || 0;
+      const fraisDossier = parseFloat(document.getElementById('fraisDossier').value) || 0;
+
+      // Mensualité max selon HCSF (revRetenu déjà calculé)
+      const mensMax = revRetenu * 0.35 - charges;
+
+      // Frais
+      const fraisNotaire = prix * fraisNotPct / 100;
+
+      // Itération frais CL (car CL dépend du prêt qui dépend de CL)
+      let emprunte = prix + fraisNotaire + fraisDossier - apport;
+      let fraisCL = emprunte * fraisCLPct / 100;
+      // 2e itération pour stabiliser
+      emprunte = prix + fraisNotaire + fraisDossier + fraisCL - apport;
+      fraisCL = emprunte * fraisCLPct / 100;
+      emprunte = prix + fraisNotaire + fraisDossier + fraisCL - apport;
+
+      const coutTotal = prix + fraisNotaire + fraisCL + fraisDossier;
+
+      // Mensualités
+      const nMois = duree * 12;
+      const mensCredit = mensualite(emprunte, taux, nMois);
+      const mensAssu = emprunte * tauxAssu / 100 / 12;
+      const mensTotale = mensCredit + mensAssu;
+
+      // Endettement
+      const endettement = revRetenu > 0 ? ((mensTotale + charges) / revRetenu) * 100 : 0;
+
+      // Capacité max (mensualité par 1000 € emprunté)
+      const mensPour1000 = mensualite(1000, taux, nMois) + 1000 * tauxAssu / 100 / 12;
+      const capaciteMax = mensMax > 0 && mensPour1000 > 0 ? (mensMax / mensPour1000) * 1000 : 0;
+
+      // Coûts cumulés
+      const interets = mensCredit * nMois - emprunte;
+      const assuTotal = mensAssu * nMois;
+      const coutCredit = interets + assuTotal + fraisCL + fraisDossier;
+
+      // DISPLAY
+      document.getElementById('mensTotale').textContent = fmt(mensTotale);
+      document.getElementById('endettementVal').textContent = endettement.toFixed(1).replace('.', ',');
+      document.getElementById('revRetenu').textContent = fmt(revRetenu);
+      document.getElementById('mensMax').textContent = fmt(mensMax);
+      document.getElementById('capaciteMax').textContent = fmt(capaciteMax);
+      document.getElementById('resPrix').textContent = fmt(prix);
+      document.getElementById('resFraisNotaire').textContent = fmt(fraisNotaire);
+      document.getElementById('resFraisCL').textContent = fmt(fraisCL);
+      document.getElementById('resFraisDossier').textContent = fmt(fraisDossier);
+      document.getElementById('resCoutTotal').textContent = fmt(coutTotal);
+      document.getElementById('resApport').textContent = fmt(apport);
+      document.getElementById('resEmprunte').textContent = fmt(emprunte);
+      document.getElementById('resMensCredit').textContent = fmt(mensCredit);
+      document.getElementById('resMensAssu').textContent = fmt(mensAssu);
+      document.getElementById('resInterets').textContent = fmt(interets);
+      document.getElementById('resAssuTotal').textContent = fmt(assuTotal);
+      document.getElementById('resCoutCredit').textContent = fmt(coutCredit);
+
+      // Endettement color & note
+      const block = document.getElementById('endettementBlock');
+      const note = document.getElementById('endettementNote');
+      const gauge = document.getElementById('gaugeFill');
+      block.classList.remove('good','warn','danger');
+      gauge.style.width = Math.min(endettement / 50 * 100, 100) + '%';
+
+      if (endettement <= 33) {
+        block.classList.add('good');
+        note.textContent = 'Confortable — bonne marge sous le plafond HCSF.';
+      } else if (endettement <= 35) {
+        block.classList.add('warn');
+        note.textContent = 'Limite — passe le HCSF mais peu de marge. Le banquier va regarder le reste à vivre.';
+      } else {
+        block.classList.add('danger');
+        note.textContent = 'Au-dessus du plafond HCSF 35 % — dossier non éligible au Portail CCF en l\'état.';
+      }
+    }
+
+    // PRESETS
+    const presets = {
+      reset: {
+        salaireBase: 42000, treizieme: 3500, primeRentree: 900, rttNet: 1800, hsAnnuel: 700,
+        bonus: 3200, interessement: 1800, participation: 0,
+        coefCCF: 0.77, charges: 0,
+        prix: 300000, fraisNotairePct: 7.5, apport: 130000,
+        taux: 3.17, duree: 25, tauxAssu: 0.35,
+        fraisCLPct: 1, fraisDossier: 750
+      }
+    };
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = presets[btn.dataset.preset];
+        Object.entries(p).forEach(([k, v]) => {
+          const el = document.getElementById(k);
+          if (el) el.value = v;
+        });
+        compute();
+      });
+    });
+
+    compute();
+  </script>
+</body>
+</html>
