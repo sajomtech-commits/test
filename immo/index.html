@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImmoPlus - Votre agence immobilière</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <div class="logo">ImmoPlus</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="pages/annonces.html">Annonces</a></li>
+        <li><a href="pages/contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Trouvez le bien de vos rêves</h1>
+      <p>Achat, vente, location — nous vous accompagnons à chaque étape.</p>
+      <form class="search-bar" id="searchForm">
+        <input type="text" id="searchInput" placeholder="Ville, quartier, code postal..." />
+        <select id="typeSelect">
+          <option value="">Tous types</option>
+          <option value="appartement">Appartement</option>
+          <option value="maison">Maison</option>
+          <option value="terrain">Terrain</option>
+          <option value="commercial">Local commercial</option>
+        </select>
+        <select id="transactionSelect">
+          <option value="">Achat / Location</option>
+          <option value="achat">Achat</option>
+          <option value="location">Location</option>
+        </select>
+        <button type="submit">Rechercher</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="featured">
+    <h2>Biens à la une</h2>
+    <div class="listings" id="featuredListings"></div>
+  </section>
+
+  <section class="stats">
+    <div class="stat-item">
+      <span class="stat-number">1 200+</span>
+      <span class="stat-label">Biens disponibles</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">850</span>
+      <span class="stat-label">Clients satisfaits</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">15 ans</span>
+      <span class="stat-label">D'expérience</span>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 ImmoPlus. Tous droits réservés.</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
